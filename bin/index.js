@@ -102,7 +102,9 @@ async function main() {
     if (commands.file != undefined) {
 
         // Read from our list of URLs
-        let sites = fs.readFileSync('./resources/txt/urls.txt', 'utf-8').split('\r');
+        //let sites = fs.readFileSync('./resources/txt/urls.txt', 'utf-8').split('\r'); // Need to split by \r on Windows.
+        let sites = fs.readFileSync('./resources/txt/urls.txt', 'utf-8').split('\n'); // Need to split by \n on Mac.
+
 
         // Remove newline from site in array.
         sites.forEach((site, index) => {
@@ -117,18 +119,15 @@ async function main() {
         // in the console.
         if (commands.output === 'console' || commands.output === undefined) {
             var totalTime = 0;
-            sites.forEach(async (site, index) => {
-                console.log(site); // Test data
-                let response = await getUrl.getUrl(site, commands.userAgent);
 
-                consoleOutput(site, response);
-
+            for ( x = 0; x < sites.length; x++ ) {
+                let response = await getUrl.getUrl(sites[x], commands.userAgent);
+                consoleOutput(sites[x], response);
                 totalTime += response.time;
-
-                if (index == sites.length - 1) {
+                if ( x == sites.length - 1 ) {
                     console.log('Total time for requests to complete:', Math.round(totalTime / 1000), 'seconds.');
                 }
-            });
+            }
         }
 
         // If the output is file, then output the data to a file.
@@ -159,6 +158,7 @@ async function main() {
  * @param {*} response The response associated with that URL to output data.
  */
 function consoleOutput(singleUrl, response) {
+    console.log('i ran');
     console.log(colors.green(`Original URL: ${singleUrl}`));
 
     // If output is status, go ahead and do that.
