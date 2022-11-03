@@ -11,7 +11,7 @@ const progressBar = require('cli-progress');
 
 // Establish progress bars.
 const singlebar = new progressBar.MultiBar({
-    format: 'Fetch and Write Progress |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Chunks',
+    format: 'Fetch and Write Progress |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Chunks || ETA: {eta}s',
     clearOnComplete: false,
     hideCursor: true,
     forceRedraw: true
@@ -139,7 +139,7 @@ async function main() {
                     firstPass = true;
                 }
                 const response = await getUrl.getUrl(sites[x], commands.userAgent);
-                fileOutput(sites[x], response, filePath, firstPass);
+                fileOutput(sites[x].toString(), response, filePath, firstPass);
                 barOne.increment();
             }
 
@@ -196,49 +196,47 @@ function consoleOutput(singleUrl, response) {
  * @param {*} filePath The path of the file to save the data.
  * @param {*} firstPass In order to determine if the header row should be placed, the firstPass boolean is sent. Default is false.
  */
-function fileOutput(singleUrl, response, filePath, firstPass = false) {
+async function fileOutput(singleUrl, response, filePath, firstPass = false) {
 
     // If output is status, go ahead and do that.
-    if (commands.status && response.error === null|| commands.search === undefined && response.error === null) {
-
+    if (commands.status && response.error === null || commands.search === undefined && response.error === null) {
         if (firstPass === true) {
-            fs.appendFile(filePath, '\nOriginal URL, Final URL, Status\n', function() {
+            await fs.promises.appendFile(filePath, '\nOriginal URL, Final URL, Status\n', function() {
                 // Do nothing.
             })
         }
-
-        fs.appendFile(filePath, singleUrl + ',' + response.fullreq.url + ',' + response.status ,function() {
-            // Do nothing.
+        fs.appendFileSync(filePath, singleUrl + ',' + response.fullreq.url + ',' + response.status + '\n',function() {
+            console.log('I appended to file')
         })
     }
 
     // If output is search, go ahead and do that.
     if (commands.search && response.error === null) {
         if ( firstPass === true ) {
-            fs.appendFile(filePath, '\nOriginal URL,', function() {
+            fs.appendFileSync(filePath, '\nOriginal URL,', function() {
                 // Do Nothing
             });
             commands.search.forEach(async (term) => {
-                await fs.promises.appendFile(filePath, term + ',');
+                await fs.appendFileSync(filePath, term + ',');
             });
 
         }
         let searches = {};
-        fs.appendFile(filePath, '\n' + singleUrl + ',', function() {
+        fs.appendFileSync(filePath, '\n' + singleUrl + ',', function() {
             // Do nothing.
         });
         commands.search.forEach((term) => {
             searches[term] = response.body.includes(term);
         })
         Object.keys(searches).forEach((term) => {
-            fs.appendFile(filePath, searches[term] + ',', function() {
+            fs.appendFileSync(filePath, searches[term] + ',', function() {
                 // Do nothing.
             });
         })
     }
 
     if ( response.error != null ) {
-        fs.appendFile(filePath, '\n Fetch failed', function() {
+        fs.appendFileSync(filePath, '\n' + singleUrl + ',Fetch failed', function() {
             // Do nothing.
         });
     }

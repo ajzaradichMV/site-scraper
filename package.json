@@ -1,5 +1,5 @@
 {
-  "name": "site-scraper",
+  "name": "spr-site-scraper",
   "version": "1.0.0",
   "description": "A site scraping tool to help folks gather the data they need.\\",
   "main": "./lib/index.js",
