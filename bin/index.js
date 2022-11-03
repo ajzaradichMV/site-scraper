@@ -41,11 +41,6 @@ async function main() {
         inputFilePath = commands.file
     }
 
-    // Create a new file or overwrite an older file.
-    fs.writeFile(outputFilepath, 'start of file', function() {
-        // Do nothing.
-    })
-
     // If the URL was filled out, begin pulling the data and parsing it out.
     if ( commands.url != undefined ) {
 
@@ -113,6 +108,10 @@ async function main() {
     
     // File was chosen, begin processing the data and parsing that out.
     if (commands.file != undefined) {
+        // Create a new file or overwrite an older file.
+        fs.writeFile(outputFilepath, 'start of file', function() {
+            // Do nothing.
+        })
 
         // Read from our list of URLs
         let sites = []
