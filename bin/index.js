@@ -30,7 +30,7 @@ async function main() {
     validation.validateUserInput(commands)
 
     // Set the output filePath. This will place the output file in the current directory that the user is in.
-    const outputFilepath = './spr_scrape_output.txt';
+    const outputFilepath = './spr_scrape_output.csv';
 
     // Set the default input filePath.
     let paths = [__dirname, '../resources/txt/urls.txt'];
