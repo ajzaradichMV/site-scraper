@@ -19,7 +19,7 @@ spr scrape <_url_|_file_|_sitemap_> _options_
 ### Commands
 
 | Options | Description | Type |
-|------------------------------|
+|---------|-------------|------|
 | --help | Shows help | [boolean] |
 | --version | Show version number. | [boolean] |
 | -u, --url | A single URL to pull all pages from. | [string] |
@@ -29,6 +29,5 @@ spr scrape <_url_|_file_|_sitemap_> _options_
 | -a, --userAgent | The userAgent to use when fetching the site data. | [string] |
 | -s, --search | The search parameters to find in the site data. | [array] |
 | -r, status | If status flag is present, the output will be the final status of the request. | [boolean] |
-|-----------------------------|
-
+|---------|-------------|------|
 
