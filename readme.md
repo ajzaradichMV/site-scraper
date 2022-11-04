@@ -49,7 +49,7 @@ Assuming the site above was a reachable URL, this command is telling the tool to
 - An option of URL, Sitemap, or File is required to be used for the input. 
 - For sitemaps, it's best to use the sitemap.xml file uploaded to a site's server. Not all sites may have a sitemap.
 - When using the `--file` flag, the default file to use is the urls.txt file located in `/site-scraper/resources/txt/`. You do have the option of including a filepath with the option. The path would be the relative path to that file from where you're at in the Terminal. 
-- - For example, if you're running the commands from `/Users/ajzar/site-scraper` and want to use a file named `another-urls-file.txt` in the same folder then you could do `spr scrape --file ./another-set-of-urls.txt --output=file`. 
+ - For example, if you're running the commands from `/Users/ajzar/site-scraper` and want to use a file named `another-urls-file.txt` in the same folder then you could do `spr scrape --file ./another-set-of-urls.txt --output=file`. 
 - If no output is selected, defaults straight to console for URL selection. When sitemap or a file is used then the defaul output is to a file.
 - The output file will be created and placed inside the same folder you're running the command from.
 
