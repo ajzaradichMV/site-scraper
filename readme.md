@@ -28,7 +28,7 @@ spr scrape <_url_|_file_|_sitemap_> _options_
 | -o, --output | Preferred output of the data. Can either be 'console' or 'file', | [string] |
 | -a, --userAgent | The userAgent to use when fetching the site data. | [string] |
 | -s, --search | The search parameters to find in the site data. | [array] |
-| -r, status | If status flag is present, the output will be the final status of the request. | [boolean] |
+| -r, --status | If status flag is present, the output will be the final status of the request. | [boolean] |
 |---------|-------------|------|
 
 ### Examples
@@ -42,6 +42,14 @@ Original URL: https://example.com
 ===Search results===
 foo : false
 bar : false
+```
+
+##### Command
+`spr scrape --file --status --output=file`
+
+##### Output
+```
+The URLs from the urls.txt file are pulled from the /site-scraper/resources/txt/ folder and each site is scraped. The status is returned and output to a file within the same folder that the command was ran in.
 ```
 
 Assuming the site above was a reachable URL, this command is telling the tool to scrape a specific URL and search for the terms "foo" and "bar". Once done, return the data to the console. 
