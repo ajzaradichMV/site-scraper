@@ -37,10 +37,12 @@ spr scrape <_url_|_file_|_sitemap_> _options_
 `spr scrape --url https://example.com --search "foo" bar" --output=console`
 
 ##### Output
+```
 Original URL: https://example.com
 ===Search results===
 foo : false
 bar : false
+```
 
 Assuming the site above was a reachable URL, this command is telling the tool to scrape a specific URL and search for the terms "foo" and "bar". Once done, return the data to the console. 
 
