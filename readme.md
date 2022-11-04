@@ -48,9 +48,9 @@ bar : false
 `spr scrape --file --status --output=file`
 
 ##### Output
-```
+
 The URLs from the urls.txt file are pulled from the /site-scraper/resources/txt/ folder and each site is scraped. The status is returned and output to a file within the same folder that the command was ran in.
-```
+
 
 Assuming the site above was a reachable URL, this command is telling the tool to scrape a specific URL and search for the terms "foo" and "bar". Once done, return the data to the console. 
 
