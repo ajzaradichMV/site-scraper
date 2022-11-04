@@ -125,6 +125,12 @@ async function main() {
         // Remove newline from site in array.
         sites.forEach((site, index) => {
             sites[index] = site.replace('\n', '');
+
+            // Check to see if the site contains http or https, if not append https:// and hope for the best.
+            if (!sites[index].includes('https://') || !sites[index].includes('http://')) {
+                sites[index] = 'https://' + sites[index];
+            }
+
         });
 
         if (commands.output === 'file') {
