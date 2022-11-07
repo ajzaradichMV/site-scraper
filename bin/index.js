@@ -9,6 +9,8 @@ const validation = require('../lib/functions');
 const parser = require('../lib/sitemapParser');
 const commands = loadCommands.loadCommands();
 const progressBar = require('cli-progress');
+const jsdom  = require('jsdom');
+const { JSDOM } = jsdom;
 
 // Establish progress bars.
 const singlebar = new progressBar.MultiBar({
@@ -55,13 +57,8 @@ async function main() {
         if ( commands.output === 'console' || commands.output === undefined ) {
             consoleOutput(commands.url, response);
         } else if ( commands.output === 'file' ) {
-            fs.writeFile(outputFilepath, 'start of file', function() {
-
-                console.log(colors.green('Created file successfully.'));
-                fileOutput(commands.url, response, outputFilepath);
-                console.log(colors.green('Completed writing to file.'));
-
-            })
+            await fs.promises.writeFile(outputFilepath, 'start of file', function() {})
+            fileOutput(commands.url, response, outputFilepath, firstPass = true);
         }
 
     } 
@@ -75,6 +72,7 @@ async function main() {
         
         if (commands.output === 'file') {
             var barOne = singlebar.create( urls.length, 1 );
+            await fs.promises.writeFile(outputFilepath, 'start of file', function() {})
         }
 
         // Using a traditional FOR loop here as we don't want to spam a site with hundreds of requests
@@ -105,11 +103,11 @@ async function main() {
         }
 
     }
-    
     // File was chosen, begin processing the data and parsing that out.
     if (commands.file != undefined) {
+
         // Create a new file or overwrite an older file.
-        fs.writeFile(outputFilepath, 'start of file', function() {
+        await fs.promises.writeFile(outputFilepath, 'start of file', function() {
             // Do nothing.
         })
 
@@ -174,16 +172,17 @@ async function main() {
  * @param {*} response The response associated with that URL to output data.
  */
 function consoleOutput(singleUrl, response) {
-    console.log('i ran');
-    console.log(colors.green(`Original URL: ${singleUrl}`));
 
-    // If output is status, go ahead and do that.
+    console.log(colors.blue(`Original URL: ${singleUrl} \n`));
+
+    // For status.
     if ( commands.status || commands.search === undefined && response.error === null ) {
-        console.log(colors.green(`Final URL: ${response.fullreq.url}`));
-        console.log(colors.green(`Final status: ${response.status}`)); 
+        console.log(colors.green('===Site Response Status==='));
+        console.log(`Final URL: ${response.fullreq.url}`);
+        console.log(`Final status: ${response.status} \n`); 
     } 
 
-    // If output is search, go ahead and do that.
+    // For search.
     if ( commands.search && response.error === null ) {
         let searches = {};
         commands.search.forEach((term) => {
@@ -193,14 +192,28 @@ function consoleOutput(singleUrl, response) {
         Object.keys(searches).forEach((term) => {
             console.log(term, ':', searches[term])
         });
-    } 
+        console.log('\n');
+    }
+
+    // For selectors.
+    if ( commands.selector && response.error === null ) {
+        const virtualConsole = new jsdom.VirtualConsole(); // Pushes errors to the virtual console.
+        const dom = new JSDOM(response.body, {virtualConsole});
+
+        console.log(colors.green('====Selectors Count===='));
+        commands.selector.forEach((selector) => {
+            let selectorArray = dom.window.document.querySelectorAll(selector);
+            console.log('Count of ' + selector + `:`, selectorArray.length);
+        });
+        console.log('\n');
+    }
 
     // If the fetch failed (not just 404'd), then go ahead and put that the fetch failed.
     if ( response.error != null ) {
         console.log(colors.red(`Final status: ${response.error}`)); 
     }
 
-    console.log('Request completed in', response.time, 'milliseconds.');
+    console.log('Request completed in', response.time, 'milliseconds.\n');
 }
 
 /**
@@ -212,49 +225,65 @@ function consoleOutput(singleUrl, response) {
  * @param {*} filePath The path of the file to save the data.
  * @param {*} firstPass In order to determine if the header row should be placed, the firstPass boolean is sent. Default is false.
  */
-async function fileOutput(singleUrl, response, outputFilepath, firstPass = false) {
+async function fileOutput( singleUrl, response, outputFilepath, firstPass = false ) {
+    // Prepare our first row.
+    if ( firstPass === true ) {
 
-    // If output is status, go ahead and do that.
-    if (commands.status && response.error === null || commands.search === undefined && response.error === null) {
-        if (firstPass === true) {
-            await fs.promises.appendFile(outputFilepath, '\nOriginal URL, Final URL, Status\n', function() {
-                // Do nothing.
+        fs.appendFileSync( outputFilepath, '\nOriginal URL,', function() {} );
+
+        // Setup row for status output.
+        if ( commands.status && response.error === null || commands.search === undefined && response.error === null ) {
+            fs.appendFileSync( outputFilepath, 'Final URL,Status' );
+        }
+
+        // Setup row for search output.
+        if ( commands.search && response.error === null ) {
+            commands.search.forEach(async ( term ) => {
+                fs.appendFileSync( outputFilepath, term + ',' );
+            });
+        }
+
+        // Setup row for selectors output.
+        if ( commands.selector && response.error === null ) {
+            commands.selector.forEach(async ( selector ) => {
+                fs.appendFileSync( outputFilepath, selector + ',' );
             })
         }
-        fs.appendFileSync(outputFilepath, singleUrl + ',' + response.fullreq.url + ',' + response.status + '\n',function() {
-            console.log('I appended to file')
-        })
     }
 
-    // If output is search, go ahead and do that.
-    if (commands.search && response.error === null) {
-        if ( firstPass === true ) {
-            fs.appendFileSync(outputFilepath, '\nOriginal URL,', function() {
-                // Do Nothing
-            });
-            commands.search.forEach(async (term) => {
-                await fs.appendFileSync(outputFilepath, term + ',');
-            });
+    // Always output the original URL at the beginning.
+    fs.appendFileSync( outputFilepath, '\n' + singleUrl + ',' );
 
-        }
+    // For status.
+    if ( commands.status && response.error === null || commands.search === undefined && response.error === null ) {
+        fs.appendFileSync( outputFilepath, response.fullreq.url + ',' + response.status + ',' );
+    }
+
+    // For search.
+    if ( commands.search && response.error === null ) {
         let searches = {};
-        fs.appendFileSync(outputFilepath, '\n' + singleUrl + ',', function() {
-            // Do nothing.
+        commands.search.forEach( ( term ) => {
+            searches[term] = response.body.includes( term );
         });
-        commands.search.forEach((term) => {
-            searches[term] = response.body.includes(term);
-        })
-        Object.keys(searches).forEach((term) => {
-            fs.appendFileSync(outputFilepath, searches[term] + ',', function() {
-                // Do nothing.
-            });
-        })
+        Object.keys( searches ).forEach(( term ) => {
+            fs.appendFileSync( outputFilepath, searches[term] + ',' );
+        });
+    }
+
+    // For selectors.
+    if ( commands.selector && response.error === null ) {
+        const virtualConsole = new jsdom.VirtualConsole(); // Pushes errors to the virtual console.
+        const dom = new JSDOM(response.body, {virtualConsole});
+
+        commands.selector.forEach( ( selector ) => {
+            let selectorArray = dom.window.document.querySelectorAll( selector );
+            let selectorCount = selectorArray.length;
+            fs.appendFileSync( outputFilepath, selectorCount + ',' );
+        });
     }
 
     if ( response.error != null ) {
-        fs.appendFileSync(outputFilepath, '\n' + singleUrl + ',Fetch failed', function() {
-            // Do nothing.
-        });
+        fs.appendFileSync( outputFilepath, 'Fetch failed' );
     }
 
 }
