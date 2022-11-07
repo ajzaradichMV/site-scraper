@@ -56,7 +56,7 @@ The URLs from the urls.txt file are pulled from the /site-scraper/resources/txt/
 Assuming the site above was a reachable URL, this command is telling the tool to scrape a specific URL and search for the terms "foo" and "bar". Once done, return the data to the console. 
 
 ##### Command
-`spr scrape --url https://example.com/ --output=console --search "foo" "bar" --selector ".entry-content" "p" --status
+`spr scrape --url https://example.com/ --output=console --search "foo" "bar" --selector ".entry-content" "p" --status`
 
 ##### Output
 
