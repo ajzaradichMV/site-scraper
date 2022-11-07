@@ -29,6 +29,7 @@ spr scrape <_url_|_file_|_sitemap_> _options_
 | -a, --userAgent | The userAgent to use when fetching the site data. | [string] |
 | -s, --search | The search parameters to find in the site data. | [array] |
 | -r, --status | If status flag is present, the output will be the final status of the request. | [boolean] |
+| -c, --selector | CSS Selector to find on the page(s). Returns count. | [array] |
 |---------|-------------|------|
 
 ### Examples
@@ -54,9 +55,31 @@ The URLs from the urls.txt file are pulled from the /site-scraper/resources/txt/
 
 Assuming the site above was a reachable URL, this command is telling the tool to scrape a specific URL and search for the terms "foo" and "bar". Once done, return the data to the console. 
 
+##### Command
+`spr scrape --url https://example.com/ --output=console --search "foo" "bar" --selector ".entry-content" "p" --status
+
+##### Output
+
+```
+Original URL: https:/example.com/ 
+
+===Site Response Status===
+Final URL: https://support-sandbox.com/
+Final status: 200
+
+===Search results===
+foo : false
+bar : true
+
+====Selectors Count====
+Count of .entry-content: 0
+Count of p: 12
+```
+
 ### Notes
 
 - An option of URL, Sitemap, or File is required to be used for the input. 
+- You can use as many, or as few, options as you'd like from status, search, and selectors. If the flag is present, that request will be shown in any of the final outputs.
 - For sitemaps, it's best to use the sitemap.xml file uploaded to a site's server. Not all sites may have a sitemap.
 - When using the `--file` flag, the default file to use is the urls.txt file located in `/site-scraper/resources/txt/`. You do have the option of including a filepath with the option. The path would be the relative path to that file from where you're at in the Terminal. 
   - For example, if you're running the commands from `/Users/ajzar/site-scraper` and want to use a file named `another-urls-file.txt` in the same folder then you could do `spr scrape --file ./another-set-of-urls.txt --output=file`. 
