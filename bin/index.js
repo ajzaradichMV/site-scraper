@@ -248,6 +248,7 @@ async function fileOutput( singleUrl, response, outputFilepath, firstPass = fals
         if ( commands.search && response.error === null ) {
             commands.search.forEach(async ( term ) => {
                 fs.appendFileSync( outputFilepath, term + ',' );
+                fs.appendFileSync( outputFilepath, 'Count,')
             });
         }
 
@@ -278,6 +279,9 @@ async function fileOutput( singleUrl, response, outputFilepath, firstPass = fals
         });
         Object.keys( searches ).forEach(( term ) => {
             fs.appendFileSync( outputFilepath, searches[term] + ',' );
+            let regexLiteral = new RegExp(/${searches[term]}/, 'g');
+            let arr = response.body.match(regexLiteral);
+            fs.appendFileSync( outputFilepath, arr.length);
         });
     }
 
