@@ -219,7 +219,9 @@ function consoleOutput(singleUrl, response) {
         console.log(colors.red(`Final status: ${response.error}`)); 
     }
 
-    console.log('Request completed in', response.time, 'milliseconds.\n');
+    // console.log('Response body: ', response.body.replace(/<\/?[^>]+>/gi, ''))
+    console.log('Response body: ', response.body)
+    // console.log('Request completed in', response.time, 'milliseconds.\n');
 }
 
 /**
@@ -255,6 +257,9 @@ async function fileOutput( singleUrl, response, outputFilepath, firstPass = fals
                 fs.appendFileSync( outputFilepath, selector + ',' );
             })
         }
+
+        // Setup row for body output.
+        fs.appendFileSync( outputFilepath, 'bodyText' );
     }
 
     // Always output the original URL at the beginning.
@@ -287,9 +292,16 @@ async function fileOutput( singleUrl, response, outputFilepath, firstPass = fals
             fs.appendFileSync( outputFilepath, selectorCount + ',' );
         });
     }
-
+    
     if ( response.error != null ) {
         fs.appendFileSync( outputFilepath, 'Fetch failed' );
+    }
+
+    // For body
+    if ( response.status === 200 && response.body != null && response.body.includes('# Mediavine Ads.txt')) {
+        fs.appendFileSync( outputFilepath, '"' + response.body.replace(/\n{2,}\s*/g, '') + '"' + ',');
+    } else {
+        fs.appendFileSync( outputFilepath, 'Either unreachable or missing # Mediavine Ads.txt')
     }
 
 }
