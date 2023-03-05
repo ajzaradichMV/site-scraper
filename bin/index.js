@@ -23,7 +23,7 @@ const singlebar = new progressBar.MultiBar({
 process.removeAllListeners('warning'); // As of Node v18.0.0 fetch is included by default but is experimental. This suppresses that warning for now.
 
 // Figure out the platform being used. If true we'll set to Windows, if false we'll just assume Mac/Linux.
-let isWin = process.platform === 'win32' ? true : false;
+let isWin = process.platform === 'win32' ? npm : false;
 
 main();
 
@@ -279,9 +279,15 @@ async function fileOutput( singleUrl, response, outputFilepath, firstPass = fals
         });
         Object.keys( searches ).forEach(( term ) => {
             fs.appendFileSync( outputFilepath, searches[term] + ',' );
-            let regexLiteral = new RegExp(/${searches[term]}/, 'g');
+            let regexLiteral = new RegExp(term, 'g');
             let arr = response.body.match(regexLiteral);
-            fs.appendFileSync( outputFilepath, arr.length);
+            let totalCount = 0
+
+            if (arr != null) {
+                totalCount = arr.length
+            }
+
+            fs.appendFileSync( outputFilepath, totalCount + ',');
         });
     }
 
@@ -303,7 +309,7 @@ async function fileOutput( singleUrl, response, outputFilepath, firstPass = fals
 
     // For body
     if ( response.status === 200 && response.body != null && response.body.includes('# Mediavine Ads.txt')) {
-        fs.appendFileSync( outputFilepath, '"' + response.body.replace(/\n{2,}\s*/g, '') + '"' + ',');
+        fs.appendFileSync( outputFilepath, '"' + response.body.replace(/\W+/g, '*') + '"' + ',');
     } else {
         fs.appendFileSync( outputFilepath, 'Either unreachable or missing # Mediavine Ads.txt')
     }
